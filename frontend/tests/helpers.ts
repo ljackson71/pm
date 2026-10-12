@@ -20,6 +20,7 @@ export const signInWithDemoBoard = async (page: Page) => {
 export const dragCard = async (page: Page, cardId: string, columnId: string) => {
   const card = page.getByTestId(`card-${cardId}`);
   const targetColumn = page.getByTestId(`column-${columnId}`);
+  await card.scrollIntoViewIfNeeded();
   const cardBox = await card.boundingBox();
   const columnBox = await targetColumn.boundingBox();
   if (!cardBox || !columnBox) {

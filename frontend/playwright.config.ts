@@ -1,4 +1,10 @@
+import { existsSync } from "node:fs";
 import { defineConfig, devices } from "@playwright/test";
+
+// Root .env provides OPENAI_API_KEY to the backend started below and to live AI tests.
+if (existsSync("../.env")) {
+  process.loadEnvFile("../.env");
+}
 
 const baseURL = process.env.BASE_URL;
 

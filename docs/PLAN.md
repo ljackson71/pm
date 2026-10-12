@@ -135,10 +135,10 @@ Success: chat can create, edit and move one or more cards via natural language, 
 
 ## Part 10: AI chat sidebar
 
-- [ ] `ChatSidebar` component: collapsible right sidebar, message list, input, send button (purple), pending indicator
-- [ ] Conversation history kept in component state and sent with each message
-- [ ] When the response includes a board, replace the board state so the UI updates immediately
-- [ ] Styling uses the project color scheme and matches the existing board design
+- [x] `ChatSidebar` component: collapsible right sidebar, message list, input, send button (purple), pending indicator
+- [x] Conversation history kept in component state and sent with each message
+- [x] When the response includes a board, replace the board state so the UI updates immediately
+- [x] Styling uses the project color scheme and matches the existing board design
 
 Tests:
 - Vitest with mocked API: sending shows user message, pending state, then the reply; a response with a board updates the rendered columns and cards; error shows a message

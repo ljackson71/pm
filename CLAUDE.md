@@ -8,7 +8,7 @@ The project is built in phases defined in `docs/PLAN.md`. Read it before startin
 
 ## Current state
 
-Parts 2-9 are done: a multi-stage `Dockerfile` builds the Next.js static export (`output: "export"`) and FastAPI serves it at `/` alongside the API; start/stop scripts in `scripts/`. Sign-in is a hardcoded `user` / `password` with a session cookie. `GET` / `PUT /api/board` store each user's board as JSON in SQLite (`docs/DATABASE.md`); the frontend loads the board on mount and saves the full board after every change. `POST /api/chat` lets the AI (OpenAI, Structured Outputs) reply and optionally update the board; the frontend chat sidebar is Part 10. See `frontend/AGENTS.md`, `backend/AGENTS.md` and `scripts/AGENTS.md`; keep them updated as those parts grow.
+Parts 2-10 are done: a multi-stage `Dockerfile` builds the Next.js static export (`output: "export"`) and FastAPI serves it at `/` alongside the API; start/stop scripts in `scripts/`. Sign-in is a hardcoded `user` / `password` with a session cookie. `GET` / `PUT /api/board` store each user's board as JSON in SQLite (`docs/DATABASE.md`); the frontend loads the board on mount and saves the full board after every change. `POST /api/chat` lets the AI (OpenAI, Structured Outputs) reply and optionally update the board; the frontend `ChatSidebar` uses it and applies returned boards immediately. See `frontend/AGENTS.md`, `backend/AGENTS.md` and `scripts/AGENTS.md`; keep them updated as those parts grow.
 
 ## Backend and Docker commands
 
@@ -43,6 +43,7 @@ BASE_URL=http://localhost:8000 npx playwright test   # e2e against the running c
 - `src/app/page.tsx` renders `App`, which checks `/api/me` and shows `LoginForm` or `KanbanBoard`. `KanbanBoard` owns board state in a single `useState<BoardData>`, loaded via `src/lib/api.ts` and saved in full after every mutation.
 - `src/lib/kanban.ts` holds the data model and pure logic: `BoardData` is normalized as an ordered `columns` array (each with ordered `cardIds`) plus a `cards` record keyed by id. Mutations (`moveCard`, `renameColumn`, `addCard`, `updateCard`, `deleteCard`) are pure functions returning a new board. `moveCard` handles both reordering within a column and moving across columns (drop target may be a card id or a column id). Keep board mutations as pure functions here so they stay unit-testable and can later be reused when applying AI-driven or backend updates.
 - Components (`KanbanColumn`, `KanbanCard`, `KanbanCardPreview` for the drag overlay, `NewCardForm`) are presentational; mutations flow up via callbacks to `KanbanBoard`.
+- `ChatSidebar` owns the chat conversation, calls `sendChat` itself, and hands any AI-returned board to `KanbanBoard` via `onBoardUpdate`.
 
 ## Target architecture (per AGENTS.md / PLAN.md)
 

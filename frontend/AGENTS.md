@@ -15,8 +15,9 @@ Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, `@dnd-kit` for d
   - `renameColumn`, `addCard`, `updateCard`, `deleteCard` - pure board mutations returning a new `BoardData`.
   - `moveCard(columns, activeId, overId)` - reorders within a column or moves across columns; `overId` may be a card id or a column id (drop at end).
   - `createId(prefix)` - random id generator.
-- `src/lib/api.ts` - `getBoard()` and `saveBoard(board)`. Saves are chained so they reach the server in order.
+- `src/lib/api.ts` - `getBoard()` and `saveBoard(board)` (chained so saves reach the server in order); `sendChat(message, history)` posts to `/api/chat` and returns `{ reply, board | null }`, throwing on non-2xx.
 - `src/components/KanbanBoard.tsx` - client component owning board state. Loads it with `getBoard()` on mount (shows a loading message), and every mutation updates state then calls `saveBoard` with the full board. Uses `DndContext` with `PointerSensor` (6px activation) and `closestCorners`, and handlers for rename column, add card, delete card, and drag end. Header has a Log out button (`onLogout` prop).
+- `src/components/ChatSidebar.tsx` - AI chat panel beside the board, closed by default (purple "Open AI chat" button). Keeps the conversation in state and sends it as history with each message; shows a "Thinking..." status while pending and an error on failure. A returned board is passed to `onBoardUpdate` (`KanbanBoard`'s `setBoard`); it is not saved again because the backend already saved it.
 - `src/components/KanbanColumn.tsx` - droppable column with an inline-editable title input (uncontrolled; saves on blur or Enter, keyed by title so external changes reset it), a `SortableContext` of cards, and `NewCardForm`.
 - `src/components/KanbanCard.tsx` - sortable card with Edit (inline title/details form) and Remove buttons. While editing, dragging is disabled and the dnd-kit attributes/listeners are not applied, because dnd-kit would mark the card `aria-disabled` and disable the form fields inside it.
 - `src/components/KanbanCardPreview.tsx` - card rendering used in the `DragOverlay`.
@@ -26,10 +27,12 @@ Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, `@dnd-kit` for d
 
 - Columns can be renamed; cards can be added, edited, deleted, and dragged. All changes persist per user.
 - Sign in required (`user` / `password`); session survives reload.
+- The AI chat sidebar can create, edit, and move cards; changes appear immediately.
+- Columns have a 220px minimum width on large screens and the board scrolls horizontally when the sidebar is open.
 - Saves are fire-and-forget: a change made immediately before a page reload can be lost.
 
 ## Tests
 
 - Unit (Vitest + Testing Library, jsdom): `src/**/*.test.{ts,tsx}`. Setup in `src/test/setup.ts`. Run `npm run test:unit`.
-- E2E (Playwright, chromium): `tests/`. Starts the backend on :8000 (uv) and `npm run dev` on 127.0.0.1:3000. Set `BASE_URL` to test an already-running server (e.g. the container) instead. Tests share one persisted board, so `workers: 1`. `tests/helpers.ts` has `signIn`, `signInWithDemoBoard` (resets the board via the API; use in `beforeEach`), and `dragCard`. Run `npm run test:e2e`.
+- E2E (Playwright, chromium): `tests/`. Starts the backend on :8000 (uv) and `npm run dev` on 127.0.0.1:3000. Set `BASE_URL` to test an already-running server (e.g. the container) instead. Tests share one persisted board, so `workers: 1`. The config loads the root `.env` (if present) so the backend it starts and the live chat test (`tests/chat.spec.ts`, skipped without `OPENAI_API_KEY`) have the key. `tests/helpers.ts` has `signIn`, `signInWithDemoBoard` (resets the board via the API; use in `beforeEach`), and `dragCard`. Run `npm run test:e2e`.
 - Tests locate elements via `data-testid` (e.g. `column-<id>`) and aria labels.
