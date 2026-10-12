@@ -78,11 +78,11 @@ Success: user signs off on `docs/DATABASE.md`.
 
 ## Part 6: Backend board API
 
-- [ ] `backend/app/db.py`: create tables on startup if missing (stdlib `sqlite3`); seed the `user` row
-- [ ] Seed new boards with the demo data (5 columns, 8 cards)
-- [ ] Pydantic models `Card`, `Column`, `Board` mirroring the frontend types
-- [ ] `GET /api/board` returns the signed-in user's board (seeding it on first access)
-- [ ] `PUT /api/board` validates and replaces the board (rejects card ids in columns that are not in `cards`)
+- [x] `backend/app/db.py`: create tables on startup if missing (stdlib `sqlite3`); seed the `user` row
+- [x] Seed new boards with the demo data (5 columns, 8 cards)
+- [x] Pydantic models `Card`, `Column`, `Board` mirroring the frontend types
+- [x] `GET /api/board` returns the signed-in user's board (seeding it on first access)
+- [x] `PUT /api/board` validates and replaces the board (rejects card ids in columns that are not in `cards`)
 
 Tests (pytest, temp DB per test via `DB_PATH`):
 - DB file and tables are created when missing

@@ -1,21 +1,43 @@
 import os
+from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.middleware.sessions import SessionMiddleware
 
+from app import db
+from app.models import Board
+
 STATIC_DIR = Path(os.environ.get("STATIC_DIR", Path(__file__).parent / "static"))
 SESSION_SECRET = os.environ.get("SESSION_SECRET", "dev-secret")
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    db.init_db()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET)
 
 
 class Credentials(BaseModel):
     username: str
     password: str
+
+
+def current_user(request: Request) -> str:
+    username = request.session.get("username")
+    if username is None:
+        raise HTTPException(status_code=401, detail="Not signed in")
+    return username
+
+
+CurrentUser = Annotated[str, Depends(current_user)]
 
 
 @app.get("/api/health")
@@ -38,11 +60,20 @@ def logout(request: Request):
 
 
 @app.get("/api/me")
-def me(request: Request):
-    username = request.session.get("username")
-    if username is None:
-        raise HTTPException(status_code=401, detail="Not signed in")
+def me(username: CurrentUser):
     return {"username": username}
+
+
+@app.get("/api/board")
+def get_board(username: CurrentUser):
+    return db.get_board(username)
+
+
+@app.put("/api/board")
+def put_board(board: Board, username: CurrentUser):
+    data = board.model_dump(by_alias=True)
+    db.save_board(username, data)
+    return data
 
 
 if STATIC_DIR.is_dir():

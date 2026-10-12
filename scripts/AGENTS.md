@@ -6,3 +6,5 @@ Build the Docker image and run it as a container named `pm` on port 8000, with `
 - Windows: `scripts/start.ps1`, `scripts/stop.ps1`
 
 Start rebuilds the image and replaces any running `pm` container. Stop removes the container; data in `./data` is kept.
+
+On Windows use the `.ps1` scripts. Running `start.sh` from Git Bash breaks the `./data` mount: Git Bash rewrites the `-v` path, so data is not persisted.
