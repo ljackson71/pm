@@ -46,4 +46,4 @@ BASE_URL=http://localhost:8000 npx playwright test   # e2e against the running c
 
 ## Target architecture (per AGENTS.md / PLAN.md)
 
-FastAPI backend in `backend/` (managed with `uv`) serves the statically exported Next.js build at `/` plus API routes, backed by SQLite (created on first run). Everything runs in a single Docker container started/stopped via scripts in `scripts/` for Mac, Windows, and Linux. AI chat calls OpenRouter (`openai/gpt-oss-120b`, key in root `.env`) with the board JSON and conversation history, and receives a structured output containing a reply plus an optional board update.
+FastAPI backend in `backend/` (managed with `uv`) serves the statically exported Next.js build at `/` plus API routes, backed by SQLite (created on first run). Everything runs in a single Docker container started/stopped via scripts in `scripts/` for Mac, Windows, and Linux. AI chat calls the OpenAI API (`gpt-5.4-mini`, `OPENAI_API_KEY` in root `.env`) with the board JSON and conversation history, and receives a structured output containing a reply plus an optional board update.

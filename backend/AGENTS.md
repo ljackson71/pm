@@ -6,11 +6,13 @@ FastAPI app managed with uv. Serves the API under `/api/*` and the Next.js stati
   - Auth: `POST /api/login` (hardcoded `user` / `password`), `POST /api/logout`, `GET /api/me` (401 if signed out). Session is a signed cookie via Starlette `SessionMiddleware`; secret from `SESSION_SECRET` (dev default `dev-secret`). Routes needing a user take the `CurrentUser` dependency (401 if signed out).
   - Board: `GET /api/board` (seeds the demo board on first access), `PUT /api/board` (validates and replaces the whole board).
   - Lifespan runs `db.init_db()` on startup.
+  - `POST /api/ai/test` (signed in): asks the model "What is 2+2?" and returns `{"reply": ...}`. Diagnostic route.
 - `app/db.py` - SQLite via stdlib `sqlite3`. Path from `DB_PATH` (default `data/app.db`, relative to the working directory), read on each call. `init_db` creates the file, tables, and the `user` row. Board stored as JSON; schema in `docs/DATABASE.md`.
+- `app/ai.py` - OpenAI API via the `openai` SDK, model `gpt-5.4-mini`, key from `OPENAI_API_KEY`. The client is created per call so the app starts without a key; tests monkeypatch `ai.client`.
 - `app/models.py` - Pydantic `Card`, `Column` (`cardIds` alias), `Board`; rejects column card ids missing from `cards` (422).
 - `app/demo_board.json` - seed board, a copy of the frontend `initialData`.
 - `app/static/` - the Next.js export, copied in by the Dockerfile (not in git). Override with the `STATIC_DIR` env var; the mount is skipped if the directory is missing, so the API runs alone in local dev.
-- `tests/` - pytest using FastAPI `TestClient`. `conftest.py` points `DB_PATH` at a temp file for every test. Use `with TestClient(app)` when a test needs the database, so startup runs.
+- `tests/` - pytest using FastAPI `TestClient`. `conftest.py` points `DB_PATH` at a temp file for every test. Use `with TestClient(app)` when a test needs the database, so startup runs. `test_ai.py` loads the root `.env`; its live test is skipped when `OPENAI_API_KEY` is not set.
 
 ## Commands
 

@@ -9,7 +9,7 @@ Each part is completed in order. Check off substeps as they are done. A part is 
 - Frontend calls the API with relative URLs (`/api/...`), so the same build works in the container with no config. In `npm run dev`, a Next.js rewrite proxies `/api` to `localhost:8000`.
 - Auth: hardcoded `user` / `password`. Login sets a signed session cookie (Starlette `SessionMiddleware`). All board and chat routes require the session.
 - SQLite file at a path from `DB_PATH` env var (default `data/app.db`), mounted as a Docker volume so data survives restarts. Created on startup if missing.
-- AI: `openai` Python SDK pointed at `https://openrouter.ai/api/v1`, model `openai/gpt-oss-120b`, key from `OPENROUTER_API_KEY` in root `.env` (passed with `--env-file`).
+- AI: `openai` Python SDK calling the OpenAI API, model `gpt-5.4-mini`, key from `OPENAI_API_KEY` in root `.env` (passed with `--env-file`). (Changed from OpenRouter / `gpt-oss-120b` in Part 8: the provided key is an OpenAI key.)
 - Board is read and written as a whole (`GET` / `PUT /api/board`). Simple, and it matches how the AI returns updates.
 
 ## Part 1: Plan
@@ -110,12 +110,12 @@ Success: the board is fully persistent per user across reloads and container res
 
 ## Part 8: AI connectivity
 
-- [ ] Add `openai` dependency; `backend/app/ai.py` creates a client for OpenRouter using `OPENROUTER_API_KEY`
-- [ ] `POST /api/ai/test` sends "What is 2+2?" and returns the model's reply (temporary diagnostic route; removed or kept behind auth)
+- [x] Add `openai` dependency; `backend/app/ai.py` creates an OpenAI client using `OPENAI_API_KEY`
+- [x] `POST /api/ai/test` sends "What is 2+2?" and returns the model's reply (temporary diagnostic route; removed or kept behind auth)
 
 Tests:
 - pytest with the client mocked: route returns the mocked reply
-- pytest live test (skipped when `OPENROUTER_API_KEY` is not set): reply contains "4"
+- pytest live test (skipped when `OPENAI_API_KEY` is not set): reply contains "4"
 
 Success: live test passes from inside the container.
 
