@@ -8,7 +8,7 @@ The project is built in phases defined in `docs/PLAN.md`. Read it before startin
 
 ## Current state
 
-Parts 2-3 are done: a multi-stage `Dockerfile` builds the Next.js static export (`output: "export"`) and FastAPI serves it at `/` alongside `/api/health`; start/stop scripts in `scripts/`. See `backend/AGENTS.md` and `scripts/AGENTS.md`; keep them updated as those parts grow.
+Parts 2-4 are done: a multi-stage `Dockerfile` builds the Next.js static export (`output: "export"`) and FastAPI serves it at `/` alongside the API; start/stop scripts in `scripts/`. Sign-in is a hardcoded `user` / `password` with a session cookie. See `frontend/AGENTS.md`, `backend/AGENTS.md` and `scripts/AGENTS.md`; keep them updated as those parts grow.
 
 ## Backend and Docker commands
 
@@ -30,7 +30,7 @@ npm run dev              # Next.js dev server on :3000
 npm run build
 npm run lint
 npm run test:unit        # Vitest (jsdom), files matching src/**/*.{test,spec}.{ts,tsx}
-npm run test:e2e         # Playwright (chromium), tests/ dir; auto-starts dev server on 127.0.0.1:3000
+npm run test:e2e         # Playwright (chromium), tests/ dir; auto-starts backend on :8000 and dev server on 127.0.0.1:3000
 npx vitest run src/lib/kanban.test.ts        # single unit test file
 npx vitest run -t "test name"                # single unit test by name
 npx playwright test tests/kanban.spec.ts     # single e2e file
@@ -40,7 +40,7 @@ BASE_URL=http://localhost:8000 npx playwright test   # e2e against the running c
 ## Frontend architecture
 
 - Next.js 16 App Router, React 19, Tailwind v4, `@dnd-kit` for drag and drop. Path alias `@/` maps to `frontend/src/`.
-- `src/app/page.tsx` renders `KanbanBoard`, which owns all board state in a single `useState<BoardData>` seeded from `initialData`. There is no persistence yet; state is lost on reload.
+- `src/app/page.tsx` renders `App`, which checks `/api/me` and shows `LoginForm` or `KanbanBoard`. `KanbanBoard` owns all board state in a single `useState<BoardData>` seeded from `initialData`. There is no persistence yet; state is lost on reload.
 - `src/lib/kanban.ts` holds the data model and pure logic: `BoardData` is normalized as an ordered `columns` array (each with ordered `cardIds`) plus a `cards` record keyed by id. `moveCard` handles both reordering within a column and moving across columns (drop target may be a card id or a column id). Keep board mutations as pure functions here so they stay unit-testable and can later be reused when applying AI-driven or backend updates.
 - Components (`KanbanColumn`, `KanbanCard`, `KanbanCardPreview` for the drag overlay, `NewCardForm`) are presentational; mutations flow up via callbacks to `KanbanBoard`.
 

@@ -50,12 +50,12 @@ Success: `http://localhost:8000/` in the container shows the Kanban demo, fully 
 
 ## Part 4: Fake user sign in
 
-- [ ] Backend: `POST /api/login` (checks `user` / `password`, sets session), `POST /api/logout` (clears session), `GET /api/me` (401 if not signed in)
-- [ ] Session secret from env var `SESSION_SECRET` with a dev default
-- [ ] Frontend: on load call `/api/me`; show a login form if 401, otherwise the board
-- [ ] Login form: username, password, submit (purple), error message on bad credentials
-- [ ] Logout button in the board header
-- [ ] Next.js dev rewrite of `/api/*` to `http://localhost:8000`
+- [x] Backend: `POST /api/login` (checks `user` / `password`, sets session), `POST /api/logout` (clears session), `GET /api/me` (401 if not signed in)
+- [x] Session secret from env var `SESSION_SECRET` with a dev default
+- [x] Frontend: on load call `/api/me`; show a login form if 401, otherwise the board
+- [x] Login form: username, password, submit (purple), error message on bad credentials
+- [x] Logout button in the board header
+- [x] Next.js dev rewrite of `/api/*` to `http://localhost:8000`
 
 Tests:
 - pytest: login success sets cookie; bad credentials return 401; `/api/me` before and after login and after logout
