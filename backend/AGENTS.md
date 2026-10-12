@@ -1,1 +1,18 @@
-This file should be updated with a description of the Backend
+# Backend
+
+FastAPI app managed with uv. Serves the API under `/api/*` and the Next.js static export at `/`.
+
+- `app/main.py` - FastAPI app. API routes must be registered before the static mount at `/`, which is a catch-all.
+- `app/static/` - the Next.js export, copied in by the Dockerfile (not in git). Override with the `STATIC_DIR` env var; the mount is skipped if the directory is missing, so the API runs alone in local dev.
+- `tests/` - pytest using FastAPI `TestClient`.
+
+## Commands
+
+Run from `backend/`:
+
+```bash
+uv sync
+uv run uvicorn app.main:app --reload --port 8000
+uv run pytest
+uv run pytest tests/test_main.py::test_health
+```

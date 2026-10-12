@@ -8,7 +8,17 @@ The project is built in phases defined in `docs/PLAN.md`. Read it before startin
 
 ## Current state
 
-Only the frontend exists so far. `backend/` and `scripts/` contain placeholder `AGENTS.md` files that should be filled in as those parts are built (Part 2 onward). No Docker setup exists yet.
+Parts 2-3 are done: a multi-stage `Dockerfile` builds the Next.js static export (`output: "export"`) and FastAPI serves it at `/` alongside `/api/health`; start/stop scripts in `scripts/`. See `backend/AGENTS.md` and `scripts/AGENTS.md`; keep them updated as those parts grow.
+
+## Backend and Docker commands
+
+```bash
+cd backend && uv run pytest                      # all backend tests
+cd backend && uv run pytest tests/test_main.py::test_health
+cd backend && uv run uvicorn app.main:app --reload --port 8000
+scripts/start.sh  | scripts/start.ps1            # build image and run container "pm" on :8000
+scripts/stop.sh   | scripts/stop.ps1
+```
 
 ## Frontend commands
 
@@ -24,6 +34,7 @@ npm run test:e2e         # Playwright (chromium), tests/ dir; auto-starts dev se
 npx vitest run src/lib/kanban.test.ts        # single unit test file
 npx vitest run -t "test name"                # single unit test by name
 npx playwright test tests/kanban.spec.ts     # single e2e file
+BASE_URL=http://localhost:8000 npx playwright test   # e2e against the running container (no dev server)
 ```
 
 ## Frontend architecture
