@@ -66,13 +66,13 @@ Success: board is only reachable after logging in with `user` / `password`; logo
 
 ## Part 5: Database modeling (user sign-off)
 
-- [ ] Write `docs/DATABASE.md` proposing the schema and approach. Initial proposal:
+- [x] Write `docs/DATABASE.md` proposing the schema and approach. Initial proposal:
   - `users(id INTEGER PK, username TEXT UNIQUE, created_at)`
   - `boards(id INTEGER PK, user_id INTEGER UNIQUE REFERENCES users, data TEXT JSON, updated_at)`
   - Board stored as JSON in the `BoardData` shape the frontend already uses (columns with ordered `cardIds`, `cards` keyed by id). One board per user is enforced by the unique `user_id`; multiple users are supported.
   - On first access, a user's board is seeded with the demo board (5 columns, 8 cards) from the current frontend `initialData`.
-- [ ] Include an example board JSON document
-- [ ] User reviews and approves the schema
+- [x] Include an example board JSON document
+- [x] User reviews and approves the schema
 
 Success: user signs off on `docs/DATABASE.md`.
 
