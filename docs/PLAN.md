@@ -96,11 +96,11 @@ Success: all backend tests pass; data persists across container restarts via the
 
 ## Part 7: Frontend + Backend
 
-- [ ] `src/lib/api.ts` with `getBoard()` and `saveBoard(board)`
-- [ ] `KanbanBoard` loads the board from the API on mount (loading state) instead of `initialData`
-- [ ] Every mutation (move, rename, add, delete) updates local state and saves the full board
-- [ ] Column rename saves on blur / Enter rather than per keystroke
-- [ ] Add card editing (title and details) since the requirements need it and the demo lacks it
+- [x] `src/lib/api.ts` with `getBoard()` and `saveBoard(board)`
+- [x] `KanbanBoard` loads the board from the API on mount (loading state) instead of `initialData`
+- [x] Every mutation (move, rename, add, delete) updates local state and saves the full board
+- [x] Column rename saves on blur / Enter rather than per keystroke
+- [x] Add card editing (title and details) since the requirements need it and the demo lacks it
 
 Tests:
 - Vitest: board renders data from a mocked API; each mutation calls `saveBoard` with the expected board; card edit updates title and details

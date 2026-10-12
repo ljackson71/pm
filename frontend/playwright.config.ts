@@ -5,6 +5,8 @@ const baseURL = process.env.BASE_URL;
 export default defineConfig({
   testDir: "./tests",
   timeout: 60_000,
+  // Tests share one user's persisted board, so they must not run in parallel.
+  workers: 1,
   expect: {
     timeout: 10_000,
   },

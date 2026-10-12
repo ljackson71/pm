@@ -1,3 +1,4 @@
+import { useState, type FormEvent } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import clsx from "clsx";
@@ -5,16 +6,35 @@ import type { Card } from "@/lib/kanban";
 
 type KanbanCardProps = {
   card: Card;
+  onEdit: (card: Card) => void;
   onDelete: (cardId: string) => void;
 };
 
-export const KanbanCard = ({ card, onDelete }: KanbanCardProps) => {
+const actionClass =
+  "rounded-full border border-transparent px-2 py-1 text-xs font-semibold text-[var(--gray-text)] transition hover:border-[var(--stroke)] hover:text-[var(--navy-dark)]";
+
+export const KanbanCard = ({ card, onEdit, onDelete }: KanbanCardProps) => {
+  const [isEditing, setIsEditing] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: card.id });
+    useSortable({ id: card.id, disabled: isEditing });
+  // While editing, drop the drag props: dnd-kit marks a disabled sortable as
+  // an aria-disabled button, which would disable the form fields inside it.
+  const dragProps = isEditing ? {} : { ...attributes, ...listeners };
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const title = String(form.get("title")).trim();
+    if (!title) {
+      return;
+    }
+    onEdit({ ...card, title, details: String(form.get("details")).trim() });
+    setIsEditing(false);
   };
 
   return (
@@ -26,28 +46,71 @@ export const KanbanCard = ({ card, onDelete }: KanbanCardProps) => {
         "transition-all duration-150",
         isDragging && "opacity-60 shadow-[0_18px_32px_rgba(3,33,71,0.16)]"
       )}
-      {...attributes}
-      {...listeners}
+      {...dragProps}
       data-testid={`card-${card.id}`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h4 className="font-display text-base font-semibold text-[var(--navy-dark)]">
-            {card.title}
-          </h4>
-          <p className="mt-2 text-sm leading-6 text-[var(--gray-text)]">
-            {card.details}
-          </p>
+      {isEditing ? (
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input
+            name="title"
+            defaultValue={card.title}
+            aria-label="Edit title"
+            className="w-full rounded-xl border border-[var(--stroke)] bg-white px-3 py-2 text-sm font-medium text-[var(--navy-dark)] outline-none transition focus:border-[var(--primary-blue)]"
+            required
+          />
+          <textarea
+            name="details"
+            defaultValue={card.details}
+            aria-label="Edit details"
+            rows={3}
+            className="w-full resize-none rounded-xl border border-[var(--stroke)] bg-white px-3 py-2 text-sm text-[var(--gray-text)] outline-none transition focus:border-[var(--primary-blue)]"
+          />
+          <div className="flex items-center gap-2">
+            <button
+              type="submit"
+              className="rounded-full bg-[var(--secondary-purple)] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:brightness-110"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="rounded-full border border-[var(--stroke)] px-3 py-2 text-xs font-semibold uppercase tracking-wide text-[var(--gray-text)] transition hover:text-[var(--navy-dark)]"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h4 className="font-display text-base font-semibold text-[var(--navy-dark)]">
+              {card.title}
+            </h4>
+            <p className="mt-2 text-sm leading-6 text-[var(--gray-text)]">
+              {card.details}
+            </p>
+          </div>
+          <div className="flex flex-col items-end">
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className={actionClass}
+              aria-label={`Edit ${card.title}`}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => onDelete(card.id)}
+              className={actionClass}
+              aria-label={`Delete ${card.title}`}
+            >
+              Remove
+            </button>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={() => onDelete(card.id)}
-          className="rounded-full border border-transparent px-2 py-1 text-xs font-semibold text-[var(--gray-text)] transition hover:border-[var(--stroke)] hover:text-[var(--navy-dark)]"
-          aria-label={`Delete ${card.title}`}
-        >
-          Remove
-        </button>
-      </div>
+      )}
     </article>
   );
 };

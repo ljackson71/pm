@@ -1,6 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "@/components/App";
+import { initialData } from "@/lib/kanban";
+
+vi.mock("@/lib/api", () => ({
+  getBoard: vi.fn(async () => initialData),
+  saveBoard: vi.fn(),
+}));
 
 const mockFetch = (statusFor: (url: string) => number) => {
   const fetchMock = vi.fn(
