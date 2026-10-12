@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Literal, Self
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -26,3 +26,13 @@ class Board(BaseModel):
             if missing:
                 raise ValueError(f"Column {column.id} references unknown cards: {sorted(missing)}")
         return self
+
+
+class ChatMessage(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+
+
+class ChatRequest(BaseModel):
+    message: str
+    history: list[ChatMessage] = []

@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from starlette.middleware.sessions import SessionMiddleware
 
 from app import ai, db
-from app.models import Board
+from app.models import Board, ChatRequest
 
 STATIC_DIR = Path(os.environ.get("STATIC_DIR", Path(__file__).parent / "static"))
 SESSION_SECRET = os.environ.get("SESSION_SECRET", "dev-secret")
@@ -76,9 +76,18 @@ def put_board(board: Board, username: CurrentUser):
     return data
 
 
-@app.post("/api/ai/test")
-def ai_test(username: CurrentUser):
-    return {"reply": ai.ask("What is 2+2?")}
+@app.post("/api/chat")
+def chat(request: ChatRequest, username: CurrentUser):
+    board = Board.model_validate(db.get_board(username))
+    result = ai.chat(board, request.history, request.message)
+    if result.board is None:
+        return {"reply": result.reply, "board": None}
+    try:
+        data = result.board.to_board().model_dump(by_alias=True)
+    except ValueError as error:
+        raise HTTPException(status_code=502, detail=f"The AI returned an invalid board: {error}")
+    db.save_board(username, data)
+    return {"reply": result.reply, "board": data}
 
 
 if STATIC_DIR.is_dir():

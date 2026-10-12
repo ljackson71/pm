@@ -121,11 +121,11 @@ Success: live test passes from inside the container.
 
 ## Part 9: AI with board context and structured outputs
 
-- [ ] `POST /api/chat` body: `{ message, history: [{role, content}] }`
-- [ ] Backend builds the prompt: system instructions describing the board format and rules, the current board JSON, history, and the new message
-- [ ] Call with `response_format` JSON schema (Structured Outputs) for `{ reply: string, board: Board | null }`
-- [ ] If `board` is present, validate it with the Pydantic `Board` model and save it; respond with `{ reply, board }`
-- [ ] Remove the Part 8 test route
+- [x] `POST /api/chat` body: `{ message, history: [{role, content}] }`
+- [x] Backend builds the prompt: system instructions describing the board format and rules, the current board JSON, history, and the new message
+- [x] Call with Structured Outputs (Responses API `responses.parse` with a Pydantic `text_format`) for `{ reply, board | null }`. The AI sees and returns the board with cards as a list, each with a `column_id` (strict schemas cannot express a dict keyed by id, and a per-card column makes it impossible to put a card in two columns, which the model did ~40% of the time when editing `cardIds` lists)
+- [x] If `board` is present, validate it with the Pydantic `Board` model and save it; respond with `{ reply, board }`
+- [x] Remove the Part 8 test route
 
 Tests:
 - pytest with mocked client: reply-only response leaves the board unchanged; response with a board saves it; invalid board from the model returns an error and does not save; history and board JSON are included in the request sent to the model

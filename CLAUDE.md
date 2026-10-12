@@ -8,7 +8,7 @@ The project is built in phases defined in `docs/PLAN.md`. Read it before startin
 
 ## Current state
 
-Parts 2-7 are done: a multi-stage `Dockerfile` builds the Next.js static export (`output: "export"`) and FastAPI serves it at `/` alongside the API; start/stop scripts in `scripts/`. Sign-in is a hardcoded `user` / `password` with a session cookie. `GET` / `PUT /api/board` store each user's board as JSON in SQLite (`docs/DATABASE.md`); the frontend loads the board on mount and saves the full board after every change. See `frontend/AGENTS.md`, `backend/AGENTS.md` and `scripts/AGENTS.md`; keep them updated as those parts grow.
+Parts 2-9 are done: a multi-stage `Dockerfile` builds the Next.js static export (`output: "export"`) and FastAPI serves it at `/` alongside the API; start/stop scripts in `scripts/`. Sign-in is a hardcoded `user` / `password` with a session cookie. `GET` / `PUT /api/board` store each user's board as JSON in SQLite (`docs/DATABASE.md`); the frontend loads the board on mount and saves the full board after every change. `POST /api/chat` lets the AI (OpenAI, Structured Outputs) reply and optionally update the board; the frontend chat sidebar is Part 10. See `frontend/AGENTS.md`, `backend/AGENTS.md` and `scripts/AGENTS.md`; keep them updated as those parts grow.
 
 ## Backend and Docker commands
 
