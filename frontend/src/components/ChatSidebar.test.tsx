@@ -108,4 +108,18 @@ describe("ChatSidebar", () => {
     await userEvent.click(screen.getByRole("button", { name: "Open AI chat" }));
     expect(screen.getByRole("complementary", { name: "AI chat" })).toBeInTheDocument();
   });
+
+  it("keeps the conversation when hidden and reopened", async () => {
+    vi.mocked(sendChat).mockResolvedValue({ reply: "Hi there", board: null });
+    const sidebar = await renderBoard();
+    await send(sidebar, "Hello");
+    await sidebar.findByText("Hi there");
+
+    await userEvent.click(sidebar.getByRole("button", { name: "Hide" }));
+    await userEvent.click(screen.getByRole("button", { name: "Open AI chat" }));
+
+    const reopened = within(screen.getByRole("complementary", { name: "AI chat" }));
+    expect(reopened.getByText("Hello")).toBeInTheDocument();
+    expect(reopened.getByText("Hi there")).toBeInTheDocument();
+  });
 });

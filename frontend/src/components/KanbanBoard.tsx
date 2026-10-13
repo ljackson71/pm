@@ -11,7 +11,8 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { KanbanColumn } from "@/components/KanbanColumn";
+import { LogOut, Sparkles } from "lucide-react";
+import { KanbanColumn, columnAccent } from "@/components/KanbanColumn";
 import { KanbanCardPreview } from "@/components/KanbanCardPreview";
 import { ChatSidebar } from "@/components/ChatSidebar";
 import { getBoard, saveBoard } from "@/lib/api";
@@ -33,6 +34,7 @@ type KanbanBoardProps = {
 export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
   const [board, setBoard] = useState<BoardData | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -46,9 +48,11 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
 
   if (!board) {
     return (
-      <p className="p-12 text-sm font-semibold uppercase tracking-[0.2em] text-[var(--gray-text)]">
-        Loading board...
-      </p>
+      <div className="flex h-screen items-center justify-center">
+        <p className="animate-pulse text-xs font-semibold uppercase tracking-[0.25em] text-[var(--gray-text)]">
+          Loading board...
+        </p>
+      </div>
     );
   }
 
@@ -95,89 +99,86 @@ export const KanbanBoard = ({ onLogout }: KanbanBoardProps) => {
   };
 
   const activeCard = activeCardId ? board.cards[activeCardId] : null;
+  const activeAccent = activeCardId
+    ? columnAccent(board.columns.findIndex((column) => column.cardIds.includes(activeCardId)))
+    : undefined;
+  const cardCount = Object.keys(board.cards).length;
 
   return (
-    <div className="flex">
-      <div className="relative min-w-0 flex-1 overflow-hidden">
-        <div className="pointer-events-none absolute left-0 top-0 h-[420px] w-[420px] -translate-x-1/3 -translate-y-1/3 rounded-full bg-[radial-gradient(circle,_rgba(32,157,215,0.25)_0%,_rgba(32,157,215,0.05)_55%,_transparent_70%)]" />
-        <div className="pointer-events-none absolute bottom-0 right-0 h-[520px] w-[520px] translate-x-1/4 translate-y-1/4 rounded-full bg-[radial-gradient(circle,_rgba(117,57,145,0.18)_0%,_rgba(117,57,145,0.05)_55%,_transparent_75%)]" />
-
-        <main className="relative mx-auto flex min-h-screen max-w-[1500px] flex-col gap-10 px-6 pb-16 pt-12">
-          <header className="flex flex-col gap-6 rounded-[32px] border border-[var(--stroke)] bg-white/80 p-8 shadow-[var(--shadow)] backdrop-blur">
-            <div className="flex flex-wrap items-start justify-between gap-6">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--gray-text)]">
-                  Single Board Kanban
-                </p>
-                <h1 className="mt-3 font-display text-4xl font-semibold text-[var(--navy-dark)]">
-                  Kanban Studio
-                </h1>
-                <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--gray-text)]">
-                  Keep momentum visible. Rename columns, drag cards between stages,
-                  and capture quick notes without getting buried in settings.
-                </p>
-              </div>
-              <div className="flex flex-col items-end gap-3">
-                <button
-                  type="button"
-                  onClick={onLogout}
-                  className="rounded-full border border-[var(--stroke)] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[var(--gray-text)] transition hover:text-[var(--navy-dark)]"
-                >
-                  Log out
-                </button>
-                <div className="rounded-2xl border border-[var(--stroke)] bg-[var(--surface)] px-5 py-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--gray-text)]">
-                    Focus
-                  </p>
-                  <p className="mt-2 text-lg font-semibold text-[var(--primary-blue)]">
-                    One board. Five columns. Zero clutter.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-4">
-              {board.columns.map((column) => (
-                <div
-                  key={column.id}
-                  className="flex items-center gap-2 rounded-full border border-[var(--stroke)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--navy-dark)]"
-                >
-                  <span className="h-2 w-2 rounded-full bg-[var(--accent-yellow)]" />
-                  {column.title}
-                </div>
-              ))}
-            </div>
-          </header>
-
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCorners}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
+    <div className="flex h-screen flex-col overflow-hidden">
+      <header className="relative z-10 flex shrink-0 items-center justify-between gap-4 bg-[linear-gradient(110deg,#032147_0%,#06306a_60%,#0b3f80_100%)] px-6 py-4 text-white max-sm:px-4 shadow-[0_8px_24px_rgba(3,33,71,0.25)]">
+        <div className="flex items-center gap-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#ecad0a,#f5c842)] font-display text-lg font-bold text-[var(--navy-dark)] shadow-[0_6px_16px_rgba(236,173,10,0.35)]">
+            K
+          </div>
+          <div>
+            <h1 className="whitespace-nowrap font-display text-xl font-semibold leading-tight tracking-tight">
+              Kanban Studio
+            </h1>
+            <p className="text-xs text-white/60">
+              {board.columns.length} stages &middot; {cardCount} cards
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsChatOpen((open) => !open)}
+            aria-pressed={isChatOpen}
+            className="flex shrink-0 items-center gap-2 rounded-full bg-[var(--secondary-purple)] px-4 py-2 max-sm:px-2.5 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(117,57,145,0.45)] transition duration-200 hover:-translate-y-px hover:brightness-110 aria-pressed:bg-white aria-pressed:text-[var(--secondary-purple)]"
           >
-            <section className="grid gap-6 pb-2 lg:auto-cols-[minmax(220px,1fr)] lg:grid-flow-col lg:overflow-x-auto">
-              {board.columns.map((column) => (
-                <KanbanColumn
-                  key={column.id}
-                  column={column}
-                  cards={column.cardIds.map((cardId) => board.cards[cardId])}
-                  onRename={handleRenameColumn}
-                  onAddCard={handleAddCard}
-                  onEditCard={handleEditCard}
-                  onDeleteCard={handleDeleteCard}
-                />
-              ))}
-            </section>
-            <DragOverlay>
-              {activeCard ? (
-                <div className="w-[260px]">
-                  <KanbanCardPreview card={activeCard} />
-                </div>
-              ) : null}
-            </DragOverlay>
-          </DndContext>
-        </main>
+            <Sparkles className="h-4 w-4" aria-hidden />
+            <span className="max-sm:sr-only">{isChatOpen ? "Close AI chat" : "Open AI chat"}</span>
+          </button>
+          <button
+            type="button"
+            onClick={onLogout}
+            aria-label="Log out"
+            title="Log out"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-white/70 transition duration-200 hover:bg-white/10 hover:text-white"
+          >
+            <LogOut className="h-4 w-4" aria-hidden />
+          </button>
+        </div>
+      </header>
+
+      <div className="flex min-h-0 flex-1">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={() => setActiveCardId(null)}
+        >
+          <main className="scroll-thin grid min-w-0 flex-1 snap-x snap-proximity auto-cols-[minmax(272px,1fr)] grid-flow-col grid-rows-[minmax(0,1fr)] gap-4 overflow-x-auto scroll-smooth scroll-px-6 px-6 py-6 max-sm:scroll-px-4 max-sm:px-4">
+            {board.columns.map((column, index) => (
+              <KanbanColumn
+                key={column.id}
+                column={column}
+                accent={columnAccent(index)}
+                index={index}
+                cards={column.cardIds.map((cardId) => board.cards[cardId])}
+                onRename={handleRenameColumn}
+                onAddCard={handleAddCard}
+                onEditCard={handleEditCard}
+                onDeleteCard={handleDeleteCard}
+              />
+            ))}
+          </main>
+          <DragOverlay dropAnimation={{ duration: 220, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }}>
+            {activeCard ? (
+              <div className="w-[272px] rotate-[2deg] scale-[1.03]">
+                <KanbanCardPreview card={activeCard} accent={activeAccent} />
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+        <ChatSidebar
+          isOpen={isChatOpen}
+          onBoardUpdate={setBoard}
+          onClose={() => setIsChatOpen(false)}
+        />
       </div>
-      <ChatSidebar onBoardUpdate={setBoard} />
     </div>
   );
 };
