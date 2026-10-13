@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.1.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "rpt_nyctaxi"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "664a12af-2478-4cfa-97f9-8d76c3868cbd"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
+  "version": "4.0",
+  "datasetReference": {
+    "byConnection": {
+      "connectionString": "Data Source=powerbi://api.powerbi.com/v1.0/myorg/LarryJ_DEV;Initial Catalog=sm_nyctaxi_gold;Integrated Security=ClaimsToken;semanticModelId=1378bc28-f933-4950-84aa-9fbda6a5e4d8"
+    }
+  }
+}
